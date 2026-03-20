@@ -7,7 +7,16 @@ require_once __DIR__ . '/PHPMailer/Exception.php';
 require_once __DIR__ . '/PHPMailer/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer/SMTP.php';
 
+$config = require __DIR__ . '/config.php';
+$smtp = $config['smtp'] ?? [];
+
 function sendOTPEmail($toEmail, $otp) {
+    global $smtp;
+    if (empty($smtp['username']) || empty($smtp['password'])) {
+        error_log("SMTP credentials missing in config.php");
+        return false;
+    }
+
     $mail = new PHPMailer(true);
 
     try {
@@ -15,9 +24,9 @@ function sendOTPEmail($toEmail, $otp) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'interviewassist.team@gmail.com';          // ← your Gmail
-        $mail->Password   = 'palyxsnhbwibyadt';           // ← your 16-char App Password (no spaces)
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;    // 'tls'
+        $mail->Username   = $smtp['username']; // ← Gmail
+        $mail->Password   = $smtp['password']; // ← 16-char App Password (no spaces)
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
         // Optional: helps with some Windows/XAMPP SSL issues
@@ -30,7 +39,7 @@ function sendOTPEmail($toEmail, $otp) {
         );
 
         // Sender & receiver
-        $mail->setFrom('yourname@gmail.com', 'Interview Assist');
+        $mail->setFrom($smtp['username'], 'Interview Assist');
         $mail->addAddress($toEmail);
 
         // Content
