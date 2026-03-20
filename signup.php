@@ -5,6 +5,7 @@
     header("Access-Control-Allow-Headers: Content-Type");
 
     include "db.php";
+    require_once __DIR__ . '/send_email.php';
 
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(200);
@@ -49,9 +50,15 @@
         // for development this is commented
         // mail($email, "Interview Assist OTP", "Your OTP is: $otp");
         // TEMP: log OTP instead of mail
-        file_put_contents("otp_log.txt", "OTP for Interview Assist OTP, Your OTP is: $otp\n", FILE_APPEND);
+        // file_put_contents("otp_log.txt", "OTP for Interview Assist OTP, Your OTP is: $otp\n", FILE_APPEND);
 
-        echo json_encode(["status"=>"success"]);
+        // echo json_encode(["status"=>"success"]);
+
+        if (sendOTPEmail($email, $otp)) {
+            echo json_encode(["status"=>"success"]);
+        } else {
+            echo json_encode(["status"=>"error","message"=>"Failed to send OTP email"]);
+        }
         exit;
     }
 

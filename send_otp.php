@@ -2,6 +2,8 @@
     header("Content-Type: application/json");
     include "db.php";
 
+    require_once __DIR__ . '/send_email.php';
+
     $data = json_decode(file_get_contents("php://input"), true);
     $email = $data["email"] ?? "";
 
@@ -26,7 +28,14 @@
     //for development mail is not used
     // mail("OTP for Interview Assist OTP, Your OTP is: $otp\n");
     // instead
-    file_put_contents("otp_log.txt", "OTP for Interview Assist OTP, Your OTP is: $otp\n", FILE_APPEND);
+    // file_put_contents("otp_log.txt", "OTP for Interview Assist OTP, Your OTP is: $otp\n", FILE_APPEND);
 
-    echo json_encode(["status"=>"success"]);
+    // echo json_encode(["status"=>"success"]);
+
+    // Replace logging with real email
+    if (sendOTPEmail($email, $otp)) {
+        echo json_encode(["status"=>"success"]);
+    } else {
+        echo json_encode(["status"=>"error","message"=>"Failed to send OTP email"]);
+    }
 ?>
